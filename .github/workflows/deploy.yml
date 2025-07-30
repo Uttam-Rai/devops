@@ -1,0 +1,57 @@
+# .github/workflows/deploy.yml
+
+name: Test, Build, and Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Tests with Pytest  # <-- NEW STEP!
+        run: pytest tests/
+
+      # --- The rest of the steps are the same ---
+
+      - name: Log in to Docker Hub
+        # Add a condition to only run this step if tests pass
+        if: success()
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        if: success()
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/devops-assessment:latest
+
+      - name: Set up Kubeconfig
+        if: success()
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      - name: Deploy to Kubernetes
+        if: success()
+        run: |
+          # Use the -k flag for kustomize-like directory application
+          kubectl apply -k k8s/
