@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: flask-app-deployment
 spec:
+
   replicas: 2 # Running 2 replicas for high availability
   selector:
     matchLabels:
@@ -13,9 +14,13 @@ spec:
         app: flask-app
     spec:
       containers:
-        - name: flask-app-container
+      
+        - name: flask-app
+          image: flask-devops-app
+
+        
           # IMPORTANT: Replace YOUR_DOCKER_USERNAME with your actual Docker Hub username
-          image: YOUR_DOCKER_USERNAME/devops-assessment:latest
+          
           ports:
             - containerPort: 5000
           env:
