@@ -21,6 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+        shell: bash # Add this line
 
       - name: Run Tests with Pytest  # <-- NEW STEP!
         run: pytest tests/
