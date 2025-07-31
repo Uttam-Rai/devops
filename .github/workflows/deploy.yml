@@ -1,5 +1,3 @@
-# .github/workflows/deploy.yml
-
 name: Test, Build, and Deploy to Kubernetes
 
 on:
@@ -21,15 +19,12 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-        shell: bash # Add this line
+        shell: bash
 
-      - name: Run Tests with Pytest  # <-- NEW STEP!
+      - name: Run Tests with Pytest
         run: pytest tests/
 
-      # --- The rest of the steps are the same ---
-
       - name: Log in to Docker Hub
-        # Add a condition to only run this step if tests pass
         if: success()
         uses: docker/login-action@v2
         with:
@@ -44,15 +39,15 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/devops-assessment:latest
 
-      - name: Set up Kubeconfig
+      # 👇 NEW SECTION: Decode kubeconfig and set env
+      - name: Decode kubeconfig from Base64
         if: success()
-        uses: azure/k8s-set-context@v3
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG }}
+        run: echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > kubeconfig.yaml
+
+      - name: Set KUBECONFIG path
+        if: success()
+        run: echo "KUBECONFIG=$PWD/kubeconfig.yaml" >> $GITHUB_ENV
 
       - name: Deploy to Kubernetes
         if: success()
-        run: |
-          # Use the -k flag for kustomize-like directory application
-          kubectl apply -k k8s/
+        run: kubectl apply -k k8s/
