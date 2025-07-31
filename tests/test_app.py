@@ -11,4 +11,4 @@ def test_hello():
     client = app.test_client()
     response = client.get('/')
     assert response.status_code == 200
-    assert b"Hello, from your deployed Flask app!" in response.data
+    assert b"my pipeline ran successfully!" in response.data
