@@ -7,7 +7,8 @@ app = Flask(__name__)
 def hello():
     # Get the greeting from an environment variable, with a default value
     greeting = os.environ.get("GREETING", "Hello")
-    return f"my pipeline ran corrctlty!"
+    return f"my pipeline ran successfully!"
+
 
 if __name__ == "__main__":
     # The host '0.0.0.0' makes the server publicly available
