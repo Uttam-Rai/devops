@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
         shell: bash
-
+ 
       - name: Run Tests with Pytest
         run: pytest tests/
 
@@ -48,6 +48,5 @@ jobs:
         if: success()
         run: echo "KUBECONFIG=$PWD/kubeconfig.yaml" >> $GITHUB_ENV
 
-      - name: Deploy to Kubernetes
-        if: success()
+      
         
